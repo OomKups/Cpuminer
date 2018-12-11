@@ -56,6 +56,10 @@ cpuminer_SOURCES = \
   lyra2/Lyra2.c lyra2/Sponge.c \
   yescrypt/yescrypt-common.c yescrypt/yescrypt-best.c \
   yescrypt/sha256_Y.c \
+  kupyna/kupyna_tables.c \
+  kupyna/kupyna_tables.h \
+  kupyna/kupyna512.c \
+  kupyna/kupyna512.h \
   algo/allium.c \
   algo/axiom.c \
   algo/bastion.c \
@@ -70,6 +74,7 @@ cpuminer_SOURCES = \
   algo/drop.c \
   algo/fresh.c \
   algo/groestl.c \
+  algo/mirinae.c \
   algo/heavy.c \
   algo/ink.c \
   algo/jha.c \

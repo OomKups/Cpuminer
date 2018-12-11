@@ -97,6 +97,7 @@ enum algos {
 	ALGO_DROP,        /* Dropcoin */
 	ALGO_FRESH,       /* Fresh */
 	ALGO_GROESTL,     /* Groestl */
+	ALGO_MIRINAE,     /* Mirinae */
 	ALGO_JHA,
 	ALGO_LBRY,        /* Lbry Sha Ripemd */
 	ALGO_LUFFA,       /* Luffa (Joincoin, Doom) */
@@ -161,6 +162,7 @@ static const char *algo_names[] = {
 	"drop",
 	"fresh",
 	"groestl",
+	"mirinae",
 	"jha",
 	"lbry",
 	"luffa",
@@ -751,7 +753,6 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 {
 	int i, n;
 	uint32_t version, curtime, bits;
-	uint32_t prevhash[8];
 	uint32_t target[8];
 	int cbtx_size;
 	uchar *cbtx = NULL;
@@ -810,7 +811,7 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 		}
 	}
 
-	if (unlikely(!jobj_binary(val, "previousblockhash", prevhash, sizeof(prevhash)))) {
+	if (unlikely(!jobj_binary(val, "previousblockhash", work->prevhash, sizeof(work->prevhash)))) {
 		applog(LOG_ERR, "JSON invalid previousblockhash");
 		goto out;
 	}
@@ -982,7 +983,7 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 	/* assemble block header */
 	work->data[0] = swab32(version);
 	for (i = 0; i < 8; i++)
-		work->data[8 - i] = le32dec(prevhash + i);
+		work->data[8 - i] = le32dec(work->prevhash + i);
 	for (i = 0; i < 8; i++)
 		work->data[9 + i] = be32dec((uint32_t *)merkle_tree[0] + i);
 	work->data[17] = swab32(curtime);
@@ -1844,6 +1845,7 @@ static void stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 			case ALGO_FRESH:
 			case ALGO_DMD_GR:
 			case ALGO_GROESTL:
+			case ALGO_MIRINAE:
 			case ALGO_KECCAKC:
 			case ALGO_LBRY:
 			case ALGO_LYRA2REV2:
@@ -2189,6 +2191,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_DMD_GR:
 			case ALGO_FRESH:
 			case ALGO_GROESTL:
+			case ALGO_MIRINAE:
 			case ALGO_MYR_GR:
 			case ALGO_SIB:
 			case ALGO_VELTOR:
@@ -2286,6 +2289,9 @@ static void *miner_thread(void *userdata)
 		case ALGO_DMD_GR:
 		case ALGO_GROESTL:
 			rc = scanhash_groestl(thr_id, &work, max_nonce, &hashes_done);
+			break;
+		case ALGO_MIRINAE:
+			rc = scanhash_mirinae(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_KECCAK:
 		case ALGO_KECCAKC:
