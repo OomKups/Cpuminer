@@ -19,7 +19,7 @@ void mirinae_hash(void *output, const void *input, int height, const void *seed)
 	struct kupyna512_ctx_t ctx_kupyna;
 
 	kupyna512_init(&ctx_kupyna);
-	kupyna512_update(&ctx_kupyna, seed, 64);
+	kupyna512_update(&ctx_kupyna, seed, 32);
 	kupyna512_final(&ctx_kupyna, offset);
 	
 	memcpy(&n, offset, 8);
