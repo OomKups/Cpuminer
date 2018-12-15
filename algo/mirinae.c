@@ -13,6 +13,7 @@ void mirinae_hash(void *output, const void *input, int height, const void *seed)
 	unsigned char _ALIGN(128) hash[64] = { 0 };
 	unsigned char _ALIGN(128) offset[64] = { 0 };
 	const int window = 4096;
+	const int aperture = 32;
 	int64_t n = 0;
 
 	sph_groestl512_context ctx_groestl;
@@ -21,20 +22,21 @@ void mirinae_hash(void *output, const void *input, int height, const void *seed)
 	kupyna512_init(&ctx_kupyna);
 	kupyna512_update(&ctx_kupyna, seed, 32);
 	kupyna512_final(&ctx_kupyna, offset);
-	
 	memcpy(&n, offset, 8);
-	unsigned int iterations = (((n % height) + (height + 1)) % window);
 
 	sph_groestl512_init(&ctx_groestl);
 	sph_groestl512(&ctx_groestl, input, 80);
 	sph_groestl512_close(&ctx_groestl, hash);
 
-	for (int i = 0; i < iterations; i++) {
-		for (int j = 0; j < hash[0]; j++) {
+	unsigned int h_loop = hash[0];
+	for (int i = 0; i < (((n % height) + (height + 1)) % window); i++) {
+		for (int j = 0; j < (h_loop % aperture); j++) {
 			kupyna512_init(&ctx_kupyna);
 			kupyna512_update(&ctx_kupyna, hash, 64);
 			kupyna512_final(&ctx_kupyna, hash);
 		}
+
+		h_loop = hash[0];
 	}
 
 	sph_groestl512_init(&ctx_groestl);
