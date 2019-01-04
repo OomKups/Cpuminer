@@ -753,6 +753,7 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 {
 	int i, n;
 	uint32_t version, curtime, bits;
+	uint32_t prevhash[8];
 	uint32_t target[8];
 	int cbtx_size;
 	uchar *cbtx = NULL;
@@ -811,7 +812,7 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 		}
 	}
 
-	if (unlikely(!jobj_binary(val, "previousblockhash", work->prevhash, sizeof(work->prevhash)))) {
+	if (unlikely(!jobj_binary(val, "previousblockhash", prevhash, sizeof(prevhash)))) {
 		applog(LOG_ERR, "JSON invalid previousblockhash");
 		goto out;
 	}
@@ -983,7 +984,7 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 	/* assemble block header */
 	work->data[0] = swab32(version);
 	for (i = 0; i < 8; i++)
-		work->data[8 - i] = le32dec(work->prevhash + i);
+		work->data[8 - i] = le32dec(prevhash + i);
 	for (i = 0; i < 8; i++)
 		work->data[9 + i] = be32dec((uint32_t *)merkle_tree[0] + i);
 	work->data[17] = swab32(curtime);

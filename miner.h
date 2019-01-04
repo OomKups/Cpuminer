@@ -396,7 +396,6 @@ float cpu_temp(int core);
 struct work {
 	uint32_t data[48];
 	uint32_t target[8];
-	uint32_t prevhash[8];
 
 	double targetdiff;
 	double shareratio;
@@ -514,7 +513,7 @@ void cryptonight_hash_v1(void* output, const void* input);
 void decred_hash(void *output, const void *input);
 void droplp_hash(void *output, const void *input);
 void groestlhash(void *output, const void *input);
-void mirinae_hash(void *output, const void *input, int height, const void *seed);
+void mirinae_hash(void *output, const void *input, int height);
 void heavyhash(unsigned char* output, const unsigned char* input, int len);
 void quarkhash(void *state, const void *input);
 void freshhash(void* output, const void* input, uint32_t len);

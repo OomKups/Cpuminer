@@ -8,16 +8,18 @@
 #include "sha3/sph_groestl.h"
 #include "kupyna/kupyna512.h"
 
-void mirinae_hash(void *output, const void *input, int height, const void *seed)
-{	
-	unsigned char _ALIGN(128) hash[64] = { 0 };
-	unsigned char _ALIGN(128) offset[64] = { 0 };
+void mirinae_hash(void *output, const void *input, int height)
+{
+	unsigned char hash[64] = { 0 };
+	unsigned char offset[64] = { 0 };
+	unsigned char seed[32] = { 0 };
 	const int window = 256;
 	const int aperture = 32;
 	int64_t n = 0;
 
 	sph_groestl512_context ctx_groestl;
 	struct kupyna512_ctx_t ctx_kupyna;
+	memcpy(seed, input + 4, (36 - 4) * sizeof(*input));
 
 	kupyna512_init(&ctx_kupyna);
 	kupyna512_update(&ctx_kupyna, seed, 32);
@@ -29,8 +31,7 @@ void mirinae_hash(void *output, const void *input, int height, const void *seed)
 	sph_groestl512_close(&ctx_groestl, hash);
 
 	unsigned int light = (hash[0] > 0) ? hash[0] : 1;
-	unsigned int outer_loop = (((n % height) + (height + 1)) % window);
-	for (int i = 0; i < outer_loop; i++) {
+	for (int i = 0; i < (((n % height) + (height + 1)) % window); i++) {
 		unsigned int inner_loop = (light % aperture);
 		for (int j = 0; j < inner_loop; j++) {
 			kupyna512_init(&ctx_kupyna);
@@ -64,7 +65,7 @@ int scanhash_mirinae(int thr_id, struct work *work, uint32_t max_nonce, uint64_t
 
 	do {
 		be32enc(&endiandata[19], nonce);
-		mirinae_hash(hash, endiandata, work->height, work->prevhash);
+		mirinae_hash(hash, endiandata, work->height);
 
 		if (hash[7] <= Htarg && fulltest(hash, ptarget)) {
 			work_set_target_ratio(work, hash);
