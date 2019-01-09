@@ -1714,6 +1714,7 @@ static void stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		pthread_mutex_unlock(&sctx->work_lock);
 	} else {
 		free(work->job_id);
+		work->height = stratum.bloc_height;
 		work->job_id = strdup(sctx->job.job_id);
 		work->xnonce2_len = sctx->xnonce2_size;
 		work->xnonce2 = (uchar*) realloc(work->xnonce2, sctx->xnonce2_size);

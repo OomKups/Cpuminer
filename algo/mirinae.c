@@ -10,6 +10,8 @@
 
 void mirinae_hash(void *output, const void *input, int height)
 {
+	if (height <= 0) { height = 1; }
+
 	unsigned char hash[64] = { 0 };
 	unsigned char offset[64] = { 0 };
 	unsigned char seed[32] = { 0 };
