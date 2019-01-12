@@ -1847,7 +1847,6 @@ static void stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 			case ALGO_FRESH:
 			case ALGO_DMD_GR:
 			case ALGO_GROESTL:
-			case ALGO_MIRINAE:
 			case ALGO_KECCAKC:
 			case ALGO_LBRY:
 			case ALGO_LYRA2REV2:
@@ -1864,6 +1863,8 @@ static void stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 			case ALGO_LYRA2:
 				work_set_target(work, sctx->job.diff / (128.0 * opt_diff_factor));
 				break;
+			case ALGO_MIRINAE:
+				work_set_target(work, sctx->job.diff / (64.0 * opt_diff_factor));
 			default:
 				work_set_target(work, sctx->job.diff / opt_diff_factor);
 		}
@@ -2193,7 +2194,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_DMD_GR:
 			case ALGO_FRESH:
 			case ALGO_GROESTL:
-			case ALGO_MIRINAE:
+			//case ALGO_MIRINAE:
 			case ALGO_MYR_GR:
 			case ALGO_SIB:
 			case ALGO_VELTOR:
